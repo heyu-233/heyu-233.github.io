@@ -1,0 +1,1456 @@
+---
+layout:    post
+title:     "微处理器，笔记总结"
+author:    "maomaoWang"
+header-style: text
+catalog:  true
+tags:
+    - 嵌入式
+    - 微处理器
+---
+
+# week1
+
+## 1.**Embedded Systems Overview**
+
+### a.Microprocessor (MPU) vs. Microcontroller (MCU)
+
+#### Microprocessor (MPU)
+
+• Typically defined as a single processor core (CPU) supports at least instruction fetching, decoding, and executing. 
+
+• A single MPU may have many CPUs.
+
+• Normally for general-purpose computing, but needs to be supported with memories and I/Os.
+
+![image-20250604131322808](微控制器复习笔记.assets/image-20250604131322808.png)
+
+#### Microcontroller (MCU)
+
+• Typically has a MPU (typically a single core) with embedded peripherals e.g. memory blocks, Digital I/Os, Analogue I/Os, and other 
+
+basic peripherals
+
+• Typically used for basic control purposes, such as embedded applications
+
+
+
+| 特点           | **微处理器 (MPU)**                                           | **微控制器 (MCU)**                                           |
+| :------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| **核心构成**   | **主要是 CPU 核心**。专注于指令的取指、译码和执行。          | **包含一个 MPU (CPU 核心) + 集成外设**。是一个“系统级芯片”(SoC)。 |
+| **集成度**     | **低集成度**。通常只有 CPU 核心本身。                        | **高集成度**。在单芯片上集成了 CPU、内存、I/O 接口、定时器、ADC/DAC 等常用外设。 |
+| **工作方式**   | **需要外部支持**。必须搭配外部存储器、I/O 接口芯片等才能构成完整系统。 | **基本自包含**。单颗芯片就能构成一个最小系统，可直接连接传感器、执行器等。 |
+| **主要应用**   | **通用计算**。用于需要较强处理能力、运行复杂操作系统（如 Linux, Windows）的设备：个人电脑、服务器、高端手机、平板等。 | **嵌入式控制**。用于执行特定控制任务的设备：家电、汽车电子、工业控制、智能仪表、物联网节点、简单外设等。 |
+| **系统复杂度** | **高**。设计者需要选配和连接多种外部芯片，系统设计相对复杂。 | **低**。利用片上资源即可构建简单系统，设计相对简单快捷。     |
+| **功耗**       | **通常较高**（尤其是高性能 MPU）。                           | **通常较低**。针对低功耗应用优化，适合电池供电设备。         |
+| **成本**       | **系统总成本可能较高**（需额外芯片）。                       | **单芯片成本低，系统总成本通常较低**（尤其对于简单应用）。   |
+
+---
+
+## 2.**ARM processors (MPUs)**
+
+### a.ARM processor families
+
+#### Cortex-A series (Application)
+
+• Applications processors 
+
+• Support OS and high-performance applications e.g. smartphones, Smart TV, smart books
+
+#### Cortex-R series (Real-time)
+
+• Real-time processors with high performance and high reliability
+
+• Support real-time processing and mission-critical control e.g. automotive braking system, powertrains
+
+#### Cortex-M series (Microcontroller)
+
+• Microcontroller
+
+• Cost-sensitive solutions for deterministic microcontroller applications e.g. smart sensors
+
+### b.ARM Processors vs. ARM Architectures
+
+#### ARM architecture 
+
+• Describes the details of instruction set, programmer’s model, exception model, and memory map
+
+• Documented in the Architecture Reference Manual
+
+#### ARM processor
+
+• Developed using one of the ARM architectures
+
+• More implementation details, such as timing information
+
+• Documented in processor’s Technical Reference Manual
+
+| 特性         | **ARM 架构 (ARM Architecture)**                              | **ARM 处理器 (ARM Processor)**                               |
+| :----------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| **本质**     | **一套设计规范/标准**                                        | **基于该规范/标准的具体硬件实现**                            |
+| **定义内容** | **定义了核心规则和抽象模型**：                               | **定义了具体的硬件细节和实现方式**：                         |
+|              | • 指令集架构 (ISA)：有哪些指令、指令格式、功能               | • 流水线级数、深度                                           |
+|              | • 程序员模型：寄存器组结构、工作模式（如用户模式、特权模式） | • 缓存大小、层级结构、替换策略                               |
+|              | • 异常/中断模型：异常类型、处理流程、向量表位置              | • 内存管理单元 (MMU) 或内存保护单元 (MPU) 的具体实现         |
+|              | • 内存模型：地址空间布局、内存访问属性、内存序               | • 分支预测器设计                                             |
+|              | • 调试架构                                                   | • 时钟频率、功耗管理策略                                     |
+|              | • 安全扩展 (如 TrustZone) 等可选特性                         | • 物理接口时序                                               |
+|              |                                                              | • 对架构中可选特性的具体支持（如是否包含 NEON, TrustZone）   |
+| **文档**     | **《ARM 架构参考手册》**                                     | **《处理器技术参考手册》**                                   |
+| **目的**     | 提供统一的编程接口和基础行为规范，确保软件兼容性。           | 指导芯片设计者如何具体实现该架构，并为软件开发者和系统集成者提供该芯片的精确硬件信息。 |
+| **类比**     | **建筑设计图纸**：规定了房子的结构、房间布局、水电接口标准等。 | **建成的房子**：根据图纸建造，但包含了具体的建筑材料、施工工艺、内部管线排布等细节。 |
+
+**总结：**
+
+- **ARM 架构是“做什么”和“看起来应该怎么做”的规则说明书。** 它定义了软件（编译器、操作系统、应用程序）如何与硬件交互的契约。
+- **ARM 处理器是“具体怎么做出来”的硬件实体。** 它是在遵守架构规则的前提下，由工程师设计出来的具体芯片，包含了所有实现架构功能所需的物理电路和优化细节。
+
+### c.Computer Architecture Basic
+
+![image-20250604132632870](微控制器复习笔记.assets/image-20250604132632870.png)
+
+---
+
+## 3.**ARM Cortex-M4 Architecture**
+
+![image-20250604133229887](微控制器复习笔记.assets/image-20250604133229887.png)
+
+### a.Processor Registers
+
+#### R0 – R12: general purpose registers
+
+---
+
+• Low registers (R0 – R7) can be accessed by any instruction
+
+• High registers (R8 – R12) can only be accessed by some instruction
+
+#### R13: Stack Pointer (SP)
+
+---
+
+• Records the current address of the stack
+
+• Used for saving the context of a program while switching between tasks
+
+Cortex-M4 has two SPs: 
+
+• Main SP, used in applications that require privileged access e.g. OS kernel
+
+• Process SP, used in base-level application code (when not running an exception handler)
+
+#### Program Counter (PC)
+
+---
+
+• Records the address of the current instruction code
+
+• Automatically incremented by four at each operation (for 32-bit instruction code), except branching operations
+
+• A branching operation, such as function calls, will change the PC to a specific address, while saving the current PC to the Link Register (LR)
+
+![image-20250604133831279](微控制器复习笔记.assets/image-20250604133831279.png)
+
+#### R14: Link Register (LR)
+
+• The LR is used to store the return address of a subroutine or a function call
+
+• The program counter (PC) will load the value from LR after a function is finished
+
+![image-20250604134101568](微控制器复习笔记.assets/image-20250604134101568.png)
+
+#### xPSR: combined Program Status Register
+
+Provides information about program execution and ALU flags
+
+> Application PSR (APSR)
+
+> Interrupt PSR (IPSR)
+
+> Execution PSR (EPSR)
+
+### b.Processor Registers vs Peripheral Registers
+
+Processor can directly access processor registers
+
+---
+
+• For example, ADD r3,r1,r0 ; r3 = r1 + r0
+
+Processor access peripheral registers via *memory mapped I/O*
+
+---
+
+• Each peripheral register is assigned a fixed memory address at the chip design stage
+
+• Processor treats peripherals registers the same as data memory
+
+• Processor uses load/store instructions to read from/write to memory (to be covered in future lectures)
+
+### c.Cortex-M4 processor memory map (Generic)
+
+The Cortex-M4 processor has 4 GB of memory address space
+
+---
+
+• Support for bit-band operation (detailed later)
+
+The 4GB memory space is architecturally defined with a number of regions
+
+---
+
+• Each region is designed for particular recommended uses
+
+• Easy for software programmer to port between different devices
+
+• The actual usage of the memory map can also be flexibly defined by the user, apart from some fixed memory addresses such as the 
+
+internal private peripheral bus.
+
+![image-20250604135451023](微控制器复习笔记.assets/image-20250604135451023.png)
+
+### d.Bit-band operations
+
+Bit-band operations allow a single load/store operation to access a single bit in the memory, for example, in order to set bit[3] in word data in address 0x20000000:
+
+> Bit-band操作允许单个加载/存储操作访问内存中的单个位，例如，为了设置地址0x20000000中的字数据中的位[3]：
+
+正常读写：
+
+```assembly
+LDR R1, =0x20000000 ; 将地址0x20000000加载到R1（假设这是我们要操作的寄存器的地址）
+LDR R0, [R1]       ; 从该地址读取32位值到R0（假设读出的值是0x21）
+ORR.W R0, #0x8     ; 将R0的bit[3]置1（0x21 | 0x8 = 0x29）
+STR R0, [R1]       ; 将修改后的值（0x29）写回原地址
+```
+
+位带操作：
+
+```assembly
+LDR R1, =0x2200000C ; 将位带别名地址0x2200000C加载到R1
+MOV R0, #1          ; 将R0设置为1（表示我们要设置对应位为1）
+STR R0, [R1]        ; 向该地址写入1，这将设置原始位带区域中对应的位
+```
+
+
+Benefits of bit-band operations
+
+
+• Faster bit operations
+
+• Fewer instructions
+
+• Atomic operation, avoid hazards
+
+ For example, if an interrupt is triggered and served during the read-modify-write operations, and the interrupt service routine modifies the same data, a data conflict will occur
+
+## 4.**Cortex-M4 Instruction Set**
+
+> ARM Cortex-M4 processor, which is used in the STM32F401 MCU, is designed to work exclusively with Thumb-2 instructions.
+
+```assembly
+label mnemonic operand1, operand2, operand3 ; comments
+```
+
+### a.Instruction Format: Labels
+
+• Place marker, marking the memory address of the current instruction
+
+• Used by branch instructions to implement if-then or goto
+
+• Must be unique
+
+### b.Instruction Format: Mnemonic
+
+•The name of the instruction
+
+• Operation to be performed by processor core
+
+### c.Instruction Format: Operands
+
+• Registers
+
+• Constants (called *immediate values*)
+
+Normally
+
+• operand1 is the destination register, and operand2 and operand3 are source operands. 
+
+• operand2 is usually a register, and the first source operand
+
+• operand3 may be a register, an immediate number, a register shifted to a constant number of bits, or a \register plus an offset (used for memory access)
+
+### d.Instruction Format: Comments
+
+• Everything after the semicolon (;) is a comment
+
+• Explain programmers’ intentions or assumptions
+
+### e.Instruction Format: Suffix
+
+Some instructions can be followed by suffixes to update processor flags or execute the instruction on a certain condition
+
+![image-20250604142307011](微控制器复习笔记.assets/image-20250604142307011.png)
+
+## 5.***Understanding ARM Assembly Language***
+
+### a.Memory Access
+
+> Memory access in Cortex-M can be described as “Load, Modify and Store” model.
+
+![image-20250604142845954](微控制器复习笔记.assets/image-20250604142845954.png)
+
+#### Cortex-M4 Endianness
+
+> Cortex-M4指令集的字节序
+
+STM32F401, which is based on the ARM Cortex-M4 core, supports only little-endian memory format.
+
+In little-endian format, the least significant byte (LSB) is stored at the **lowest memory address**, and the most significant byte (MSB) is stored at the **highest memory address**
+
+![image-20250604143134769](微控制器复习笔记.assets/image-20250604143134769.png)
+
+#### Load/Store a Byte, Halfword, Word
+
+```assembly
+LDRx R0, [R1]; Load data from memory into a 32-bit register
+```
+
+>LDRB Load Byte uint8_t unsigned char
+>LDRH Load Halfword uint16_t unsigned short int
+>LDRSB Load Signed Byte int8_t signed char
+>LDRSH Load Signed Halfword int16_t signed short int
+
+```assembly
+STRx R0, [R1]; Store data extracted from a 32-bit register into memory
+```
+
+> STR**B** Store Lower Byte uint8_t/int8_t unsigned or signed char
+> STR**H** Store Lower Halfword uint16_t/int16_t unsigned or signed short
+
+#### Addressing Modes
+
+> 寻址方法
+
+• Address accessed by LDR/STR is specified by a base register plus an Offset
+
+• Offset can be an Immediate value 
+
+• Offset can be hold in a Register
+
+这段话描述的是 **ARM 汇编中内存访问指令（`LDR`/`STR`）的核心寻址机制**。简单来说：
+
+> **内存地址 = 基址寄存器 + 偏移量**
+> 其中偏移量可以是 ​**立即数**​（直接写在指令中的常数），也可以是 ​**另一个寄存器**​ 中存储的值。
+
+ARM 的 `LDR`（加载）和 `STR`（存储）指令访问内存时，地址由两部分动态计算：
+
+- **基址寄存器（Base Register）**：一个寄存器（如 `R0`~`R12`）存放基准地址。
+- **偏移量（Offset）**：一个可灵活配置的附加值。
+
+ 偏移量的两种形式：
+
+| 类型                    | 说明                                              | 示例指令                   | 实际访问地址       |
+| ----------------------- | ------------------------------------------------- | -------------------------- | ------------------ |
+| **立即数（Immediate）** | 直接写在指令中的常数（如 `#4`, `#0x20`）。        | `LDR R0, [R1, #8]`         | `R1的值 + 8`       |
+| **寄存器（Register）**  | 偏移量存储于**另一个寄存器**（如 `R2`）。         | `STR R0, [R1, R2]`         | `R1的值 + R2的值`  |
+|                         | 寄存器偏移还支持**移位操作**（如左移 `LSL #2`）。 | `LDR R0, [R1, R2, LSL #2]` | `R1的值 + (R2<<2)` |
+
+------
+
+#### Load/Store Multiple Registers
+
+• PUSH/POP instructions uses Stack memory, hence no need to specify a Base address.
+
+• The lower numbered the register is, the lower memory address in the stack.
+
+PUSH instruction uses Stack to store register values temporary until they are retrieved with POP instruction. Stack Pointer (SP) keep track of stack address where the register value is stored.
+
+```assembly
+Examples:
+PUSH {r1,r2-r4} ; Lowest register in PUSH, will match the 
+POP {r5-7, r8} ; lowest register in POP
+```
+
+![image-20250604145203467](微控制器复习笔记.assets/image-20250604145203467.png)
+
+• For STM/LDM, the lowest-numbered register is stored/loaded at the lowest memory address.
+
+• The order in which registers are listed within the bracket {} does not matter.
+
+• A register (Rn) with a base address is required.
+
+```assembly
+Examples:
+LDMIA r0!, {r3, r1, r4, r2} ; can also be written as {r1-r4}
+STMIA r0!, {r1-r4} ; store in the same order
+LDMIA r0!, {r7, r2, r5, r3} 
+STMIA r0!, {r1, r5, r2, r3}
+```
+
+![image-20250604145216955](微控制器复习笔记.assets/image-20250604145216955.png)
+
+### b.Data Movement
+
+```assembly
+Examples:
+MOVS R11, #0x000B ; Write value of 0x000B to R11, flags get updated
+MOV R1, #0xFA05 ; Write value of 0xFA05 to R1, flags are not updated
+MOVS R10, R12 ; Write value in R12 to R10, flags get updated
+MOV R3, #23 ; Write value of 23 to R3
+MOV R8, SP ; Write value of stack pointer to R8
+MVNS R2, #0xF ; Write value of 0xFFFFFFF0 (bitwise inverse of 0xF) to the R2 and update flags.
+MVN R2, #0xF ; Same as before but no flags update.
+MOV R0, PC ; Copy PC (R15) to R0
+MOV R1, SP ; Copy SP (R14) to R1
+MOV R1, R2, LSL #3 ; R1 = R2 << 3
+```
+
+### c.Arithmetic: Addition and Subtraction
+
+```assembly
+Examples:
+ADD R0, R1, R2 ; R0 = R1 + R2, NZCV flags unchanged
+ADDS R0, R1, R2 ; sets NZCV flags on the result
+SUBS R8, R6, #240 ; Sets the flags on the result
+RSB R4, R4, #1280 ; Subtracts contents of R4 from 1280 
+ADCHI R11, RO, R3 ; Only executed if C flag set and Z flag clear.
+```
+
+#### Addition resulting C and Z
+
+![image-20250604150151746](微控制器复习笔记.assets/image-20250604150151746.png)
+
+#### Addition resulting N and V
+
+![image-20250604150200201](微控制器复习笔记.assets/image-20250604150200201.png)
+
+#### 64-bit addition with ADDS and ADC
+
+• A register can only store 32 bits
+
+• A 64-bit integer needs two registers
+
+• Split 64-bit addition into two 32-bit additions
+
+![image-20250604150438086](微控制器复习笔记.assets/image-20250604150438086.png)
+
+### d.Arithmetic: Multiply and Divide
+
+```assembly
+Short Multiplications:
+MUL R10, R2, R5 ; Multiply, R10 = R2 x R5
+MLA R10, R2, R1, R5 ; Multiply with accumulate, R10 = (R2 x R1) + R5
+MULS R0, R2, R2 ; Multiply with flag update, R0 = R2 x R2 
+MULLT R2, R3, R2 ; Conditionally multiply, R2 = R3 x R2
+MLS R4, R5, R6, R7 ; Multiply with subtract, R4 = R7 - (R5 x R6)
+```
+
+```assembly
+Long Multiplications:
+UMULL R0, R4, R5, R6 ; Multiplies R5 and R6, writes the top 32 bits to R4
+; and the bottom 32 bits to R0
+UMAAL R3, R6, R2, R7 ; Multiplies R2 and R7, adds R6, adds R3, writes the
+; top 32 bits to R6, and the bottom 32 bits to R3
+UMLAL R2, R1, R3, R5 ; Multiplies R5 and R3, adds R1:R2, writes to R1:R2.
+```
+
+```assembly
+Divisions:
+SDIV R0, R2, R4 ; Signed divide, R0 = R2/R4
+UDIV R8, R8, R1 ; Unsigned divide, R8 = R8/R1
+```
+
+### e.Conditional Instructions
+
+#### Unconditional Branch Instruction
+
+```assembly
+MOVS r1, #1
+ B target ; Branch to target
+ MOVS r2, #2 ; Not executed
+ MOVS r3, #3 ; Not executed
+ MOVS r4, #4 ; Not executed
+target MOVS r5, #5
+```
+
+• A label marks the location of an instruction
+
+• Labels helps human to read the code
+
+• In machine program, labels are converted to numeric offsets by assembler
+
+#### Conditional Branch: If-then
+
+```assembly
+      ; r1 = a (signed integer), r2 = x
+      CMP r1, #0 ; Compare a with 0
+      BGE endif ; Go to endif if a ≥ 0
+then  RSB r1, r1, #0 ; a = - a
+endif ADD r2, r2, #1 ; x = x + 1
+```
+
+![image-20250604151419356](微控制器复习笔记.assets/image-20250604151419356.png)
+
+#### Conditional Branch: If-then-else
+
+![image-20250604151446269](微控制器复习笔记.assets/image-20250604151446269.png)
+
+```assembly
+     ; r1 = a, r2 = b
+     CMP r1, #1 ; compare a and 1
+     BNE else ; go to else if a ≠ 1 
+then MOV r2, #3 ; b = 3 
+     B endif ; go to endif
+else MOV r2, #4 ; b = 4 
+endif
+;BL：branch link 用于调用子程序，BLT：less than  用于实现条件跳转
+```
+
+#### Conditional Branch:for
+
+![image-20250604151849039](微控制器复习笔记.assets/image-20250604151849039.png)
+
+```assembly
+       MOV r0, #0 ; i
+       MOV r1, #0 ; sum
+loop   CMP r0, #10 ; check whether i < 10
+       BGE endloop ; skip if ≥
+       ADD r1, r1, r0 ; sum += i
+       ADD r0, r0, #1 ; i++
+       B loop
+endloop
+```
+
+## 6.**Mixed C and ARM Assembly Language**
+
+![image-20250604152207527](微控制器复习笔记.assets/image-20250604152207527.png)
+
+### a.Memory requirements
+
+![image-20250604152432986](微控制器复习笔记.assets/image-20250604152432986.png)
+
+C Run-Time Start-Up Module
+
+• After reset, MCU must:
+
+> Initialize hardware
+
+>> Peripherals, etc.
+>
+>> Set up stack pointer
+
+> Initialize C or C++ runtime environment
+
+>> Set up heap memory
+>
+>> Initialize variables
+
+![image-20250604152707345](微控制器复习笔记.assets/image-20250604152707345.png)
+
+### b.Functions
+
+• A function is a subpart of a larger program that is used several times.
+
+> It saves code memory by reusing the functions. (Otherwise the function is copied all over the memory)
+
+• In C, a function takes arguments from the caller and return a value to the caller.
+
+> The number of arguments varies: from 0 to a large list (consider printf() as an example).
+
+• Issue 1: What is the mechanism in assembly to call a function and return from a function?
+
+• Issue 2: How to provide arguments to a function and get a return value?
+
+![image-20250604153443908](微控制器复习笔记.assets/image-20250604153443908.png)
+
+![image-20250604153620152](微控制器复习笔记.assets/image-20250604153620152.png)
+
+```assembly
+__asm int func2(int arg1, int arg2, int arg3, int arg4){
+    MULS r0, r1, r0 ; r0 = arg1 * arg2
+    MULS r0, r2, r0 ; r0 = r0 * arg3
+    MULS r0, r3, r0 ; r0 = r0 * arg4
+    BX lr ; return value in r0
+}
+```
+
+```assembly
+__asm int func1(int arg1, int arg2){
+MOVS r4, r1 ; r4 = arg2
+; 1st argument already in r0
+MOVS r1, #4 ; 2nd argument for func2
+MOVS r2, #5 ; 3rd argument for func2
+MOVS r3, #6 ; 4th argument for func2
+BL func2 ; call func2
+ADDS r0, r0, r4 ; return value in r0
+ …
+}
+```
+
+However, if we execute the func1 as written, it does not work! Why?
+
+• r4 is not preserved by func1().
+
+• LR for func1() is over-written when func2() is called!
+
+---
+
+# week2
+
+## 1.General-Purpose Input/Output (GPIO)
+
+### a.GPIO Configuration
+
+#### GPIO main features
+
+•Each GPIO port has 16 I/Os
+
+• Each PIN can be configured as Input or Output
+
+• Output states: push-pull or open drain + pull-up/down
+
+• Input states: floating, pull-up/down, analog
+
+• Alternate function (AF) input/output selection registers (at most 16 AFs per I/O)
+
+• Timer, ADC, UART, SPI, I2C etc.
+
+• Speed selection for each I/O
+
+• Fast toggle capable of changing every two clock cycles
+
+• Highly flexible pin multiplexing allows the use of I/O pins as GPIOs or as one of several peripheral functions
+
+#### STM32F401 Peripheral Memory Map
+
+![image-20250604170315667](微控制器复习笔记.assets/image-20250604170315667.png)
+
+![image-20250604170329686](微控制器复习笔记.assets/image-20250604170329686.png)
+
+> RCC(Reset and Clock Control)是嵌入式系统中（尤其是基于ARM Cortex-M内核的微控制器，如STM32系列）的核心硬件模块。简单来说，它是整个芯片的“**时钟和复位管理器**”。
+
+![image-20250604170909562](微控制器复习笔记.assets/image-20250604170909562.png)
+
+RCC_AHB1ENR: Enable clock of GPIOA
+
+![image-20250604171019030](微控制器复习笔记.assets/image-20250604171019030.png)
+
+![image-20250604171513904](微控制器复习笔记.assets/image-20250604171513904.png)
+
+0:IO port A clock disabled
+
+1:IO port A clock enabled
+
+#### GPIO Mode Register (MODER)
+
+![image-20250604172049706](微控制器复习笔记.assets/image-20250604172049706.png)
+
+#### GPIO Output Type Register (OTYPE)
+
+![image-20250604172108074](微控制器复习笔记.assets/image-20250604172108074.png)
+
+##### Push-Pull
+
+![image-20250604172119459](微控制器复习笔记.assets/image-20250604172119459.png)
+
+##### Open-Drain
+
+![image-20250604172129330](微控制器复习笔记.assets/image-20250604172129330.png)
+
+
+ **1. 关键特性对比**
+
+| **特性**         | **推挽 (Push-Pull)**             | **开漏 (Open-Drain)**                 |
+| ---------------- | -------------------------------- | ------------------------------------- |
+| **驱动能力**     | 强（双MOS管驱动高/低电平）       | 弱（仅能主动拉低，高电平靠外部上拉）  |
+| **输出电平**     | 0V（低）或 VDD（高）             | 0V（低）或 **需外部上拉至目标高电平** |
+| **外部上拉电阻** | **不需要**                       | **必须**（否则高阻态无有效高电平）    |
+| **开关速度**     | 快（高低电平切换迅速）           | 慢（从低→高依赖外部电阻充电延时）     |
+| **功耗**         | 较高（切换时有瞬态电流）         | 较低（仅拉低时耗电）                  |
+| **总线共享能力** | 不支持（输出冲突可能导致短路！） | 支持（多设备通过“线与”逻辑共享总线）  |
+
+------
+
+ **2. 典型应用场景**
+
+| **模式** | **适用场景**                                                 | **典型案例**                     |
+| -------- | ------------------------------------------------------------ | -------------------------------- |
+| **推挽** | • 独立数字信号输出 • 高速开关（LED、蜂鸣器等） • 单向控制（无总线共享） | LED驱动、直流电机控制            |
+| **开漏** | • 总线通信（避免多设备冲突） • 电平转换（连接不同VDD的芯片） • 共享中断信号线 | I²C、SMBus、One-Wire总线、中断线 |
+
+
+>  当多个设备共享一条总线时，只要**任意设备拉低（N-MOS导通）​**，整条线即为低电平，实现安全的“线与”（Wired-AND）逻辑，避免推挽模式的短路风险。
+
+ **总结：如何选择模式？**
+
+- 选推挽 (Push-Pull)：
+  驱动独立外设（LED、继电器等），要求高速、强驱动能力，且不与其他输出共享线路。
+- 选开漏 (Open-Drain)：
+  用于总线通信（I²C等）、多设备信号共享、电平转换或需“线与”逻辑的场景。
+
+#### GPIO “Output” Speed Register (OSPEEDR)
+
+![image-20250604172248688](微控制器复习笔记.assets/image-20250604172248688.png)
+
+• Output Speed: 
+
+> Speed of rising and falling
+> Four speeds: Low, Medium, High and Very High
+
+• Tradeoff
+
+> Higher GPIO speed increases EMI noise and power consumption
+>
+> Configure based on peripheral speed
+
+> > Low speed for toggling LEDs
+
+> > High speed for SPI
+
+• Slew Rate(转换速率)
+
+> Maximum rate of change of the output voltage
+>
+> A high slew rate allows the output to be toggled at a fast speed.
+
+#### GPIO “Input” Pull-up/Pull Down Register (PUPDR)
+
+![image-20250604173107312](微控制器复习笔记.assets/image-20250604173107312.png)
+
+![image-20250604173117607](微控制器复习笔记.assets/image-20250604173117607.png)
+
+![image-20250604173142716](微控制器复习笔记.assets/image-20250604173142716.png)
+
+#### Configure a GPIO pin as Output
+
+![image-20250604173408951](微控制器复习笔记.assets/image-20250604173408951.png)
+
+### b.GPIO in C with CMSIS
+
+> CMSIS is a standardised software framework developed by ARM to simplify embedded software development on Cortex-M microcontrollers. It provides a common interface for low-level hardware access, making code portable, efficient, and easy to read.
+
+![image-20250604173731165](微控制器复习笔记.assets/image-20250604173731165.png)
+
+#### Key Features of CMSIS
+
+• CMSIS provides standard predefined headers (e.g. stm32f401xe.h) that define memorymapped registers and peripheral structures.
+
+• CMSIS transforms memory-mapped registers into C structures (struct), making them more readable and portable.
+
+• CMSIS provides predefined macros make register manipulation easier to read and less error-prone.
+
+> 预定义文件
+
+```c
+#include "stm32f401xe.h"
+int main(void)
+{
+      // Enable the clock to GPIO Port A
+      RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; 
+      // Set PA5 as output (01 = Output)
+      GPIOA->MODER &= ~(3UL<<10); 
+      GPIOA->MODER |= 1UL<<10;
+      // Set PA5 speed to Fast (10)
+      GPIOA->OSPEEDR &= ~(3<<10);
+      GPIOA->OSPEEDR |= 2<<10; 
+      // Set PA5 output to push-pull (0)
+      GPIOA->OTYPER &= ~(1<<5); 
+      // Set PA5 (bit 5) high
+      GPIOA->ODR |= 1<<5;
+      // Stay in loop forever to keep LED on
+      while(1);
+}
+```
+
+### c.HAL General Concepts
+
+• The STM32Cube Hardware abstraction layer (HAL) is the replacement for the standard peripheral library
+
+• The main objectives of the HAL is to offer
+
+> User friendly APIs that hide the HW complexity and focus on the functionality
+>
+> Portable APIs that allowing easy migration of user application across different product families
+
+![image-20250604174513423](微控制器复习笔记.assets/image-20250604174513423.png)
+
+#### STM32 Startup
+
+![image-20250604174647106](微控制器复习笔记.assets/image-20250604174647106.png)
+
+## 2.Interrupts and Events:External Interrupt (EXTI)
+
+### a.How can we detect when a switch is pressed?
+
+Interrupt-driven operations
+
+• Allows CPU to perform other tasks until external/internal devices require service
+
+• CPU automatically stops the current code, save its state, jump to the specific code section called interrupt service routine (ISR) and starts to execute it. 
+
+• Once finished, the processor restores the saved state and resumes the existing tasks in the original code.
+
+![image-20250604185723936](微控制器复习笔记.assets/image-20250604185723936.png)
+
+### b.Interrupts types
+
+Hardware interrupts 
+
+---
+
+• Asynchronous: not related to what code the processor is currently executing
+
+• Examples: interrupt is asserted e.g. GPIO input is detected, character is received on serial port, or ADC converter finishes 
+
+conversion
+
+System Exceptions, faults, software interrupts 
+
+---
+
+• Synchronous: are the result of specific instructions executing
+
+• Examples: undefined instructions, overflow occurs for a given instruction
+
+### c.EXTI: System Configuration Controller (SYSCFG)
+
+![image-20250604191021473](微控制器复习笔记.assets/image-20250604191021473.png)
+
+### d.NVIC: Interrupt Vector Table
+
+![image-20250604191309649](微控制器复习笔记.assets/image-20250604191309649.png)
+
+PC13 is linked to external interrupt line 13 (EXTI13) that is mapped to NVIC ISR called EXTI15_10_IRQHandler
+
+### e.NVIC: Registers and State
+
+• Interrupt Enable/Disable
+
+> To enable/disable specific interrupt in NVIC:
+
+> > Enables → NVIC_ISER (Interrupt Set-Enable Register)\
+> >
+> > Disables → NVIC_ICER (Interrupt Clear-Enable Register)
+
+> CMSIS interface:
+
+> > Enables → NVIC_EnableIRQ(IRQnum)
+
+> > Disables → NVIC_DisableIRQ(IRQnum)
+
+• Interrupt Priority Group
+
+> Determines the number of bits used to set the number of priority level
+
+> CMSIS interface :
+
+> > Sets priority group → NVIC_SetPriorityGrouping(priority_group)
+
+• Interrupt Priority
+
+> Determines the priority level of an interrupt (lower value = higher priority).
+
+> Uses register: 
+
+> > NVIC_IPR (Interrupt Priority Register)
+
+> CMSIS interface:
+
+> >Sets priority for an interrupt → NVIC_SetPriority(IRQnum, priority_level)
+
+### f.NVIC: Priority Group
+
+The CMSIS interface → NVIC_SetPriorityGrouping(priority_group) is to how the available priority bits are divided between preemption priority and sub-priority.
+
+• This setting affect the number of priority levels, and the Priority Byte value that is required to setup the interrupt priority register NVIC_IPR
+
+![image-20250604192425374](微控制器复习笔记.assets/image-20250604192425374.png)
+
+Using the default priority_group (4) where 4 bits is used to determine 16 levels of priority level:
+
+![image-20250604192525854](微控制器复习笔记.assets/image-20250604192525854.png)
+
+```assembly
+Priority_byte = priority_level << (8 – priority_group_bits) & 0xFF
+NVIC→IP[x] = Priority_byte
+```
+
+例如：
+
+```c
+代码：NVIC→IP[40] = 2 << (8-4) & 0xFF
+作用：设置中断号40的中断优先级为2（数值越小优先级越高
+    
+首先计算：(8 - 4) = 4   // 8为寄存器位宽，4为实际有效位宽（高4位）
+将优先级值移到高4位：2 << 4 = 0b0000 0010 << 4 = 0b0010 0000
+屏蔽无效位（确保低4位为0）0b00100000 & 0xFF = 0x20
+// 0xFF (二进制11111111) 确保结果在8位内
+// 实际上此步可省略（因移位后已自动在8位范围内）
+```
+
+## 3.General-Purpose Timer
+
+![image-20250604193917109](微控制器复习笔记.assets/image-20250604193917109.png)
+
+• Time-base Unit
+
+> 16-bit (TIM3 and TIM4) or 32-bit (TIM2 and TIM5) up, down, up/down counter with its related auto-reload register (ARR).
+
+> 16-bit programmable prescaler (PSC) used to divide (also “on the fly”) the timer clock input (default APB1 timer clock 84 MHz) by any factor between 1 and 65536.
+
+• Up to 4 independent channels for:
+
+> Input capture (Our Objective 2)
+>
+> Output compare
+>
+> PWM generation (Our Objective 1)
+>
+> One-pulse mode output
+
+• Interrupt/DMA generation on the following events:
+
+> Update: counter overflow/underflow, counter initialisation (by software or internal/external trigger)
+>
+> Trigger event (counter start, stop, initialisation or count by internal/external trigger)
+>
+> Input capture (Our Objective 2)
+>
+> Output compare
+
+### a.Base-time unit
+
+![image-20250604194507988](微控制器复习笔记.assets/image-20250604194507988.png)
+
+```c
+Example 3: 
+CK_INT= 84 MHz
+PSC = 83
+ARR = 999
+RCR = 0
+Update_event = 84*10^6/((83+1)*(999+1)*(0+1)
+= 1000 Hz
+```
+
+#### prescaler
+
+> 预分配器
+> • The prescaler can divide the counter clock frequency by any factor between 1 and 65536. 
+> • It is based on a 16-bit counter controlled through a 16-bit/32-bit register (in the TIMx_PSC register).
+> • It can be “changed on the fly” as this control register is buffered. The new prescaler ratio is taken into account at the next update event.
+
+#### Counter Mode Comparisons
+
+>计数器模式比较
+
+![image-20250604194752878](微控制器复习笔记.assets/image-20250604194752878.png)
+
+##### Counter Mode → Up
+
+In down-counting mode (edge-aligned), the counter counts from ARR down to 0, then restarts from the auto-reload value and generates a counter underflow event.
+
+![image-20250604194841750](微控制器复习笔记.assets/image-20250604194841750.png)
+
+##### Counter Mode → Down
+
+![image-20250604194904570](微控制器复习笔记.assets/image-20250604194904570.png)
+
+##### Counter Mode → Center-aligned
+
+In center-aligned mode (up/down counting), the counter counts from 0 to ARR value (up counting), generates a counter overflow event, then counts from ARR down to 1 (down counting) and generates a counter underflow event.
+
+![image-20250604194939439](微控制器复习笔记.assets/image-20250604194939439.png)
+
+#### Output Mode
+
+![image-20250604195356247](微控制器复习笔记.assets/image-20250604195356247.png)
+
+PWM Mode 1 (Active High)
+
+![image-20250604195426114](微控制器复习笔记.assets/image-20250604195426114.png)
+
+PWM Mode 2 (Active Low)
+
+#### Input Capture Mode
+
+• In Input capture mode, the Capture/Compare Registers (TIMx_CCRx) are used to latch the value of the counter after a transition detected by the corresponding ICx signal.
+
+• Captures are done in the shadow register, which is copied into the preload register.
+
+##### Input Capture (Rising-edges only)
+
+![image-20250604195728353](微控制器复习笔记.assets/image-20250604195728353.png)
+
+## 4.Analogue to Digital Conversion (ADC)
+
+• Single mode, which converts only one channel, in single-shot or continuous mode.
+
+• Scan mode, which converts a complete set of pre-defined programmed input channels, in singleshot or continuous mode.
+
+• Discontinuous mode, converts only a single channel at each trigger signal from the list of predefined programmed input channels.
+
+Default ADC Clock Calculation:
+
+• If PCLK2 = 84 MHz and the ADC prescaler is set to divide by 4, the ADC clock is:
+
+• ADCCLK = PCLK2 / 4 = 84 MHz / 4 = 21 MHz 
+
+• This ensures that the ADC clock is well within the 36 MHz limit.
+
+• If the clock exceeds the 36 MHz limit, ADC may produce incorrect or noisy results.
+
+• STM32CubeIDE sets the default ADC prescaler to divide by 4, ensuring that the ADC clock is always within the safe operating range.
+
+### a.ADC Timing Diagram
+
+ADC needs a stabilisation time of tSTAB before it starts converting accurately. After the start of the ADC conversion and after 15 clock cycles, the EOC flag is set and the 16-bit ADC data register contains the result of the conversion. If the EOCIE is set, an interrupt is generated at the end of each conversion.
+
+![image-20250604200753526](微控制器复习笔记.assets/image-20250604200753526.png)
+
+## 5.DMA Concept
+
+Direct Memory Access (DMA)
+
+• DMA is used in order to provide high-speed data transfer between peripherals and memory and between memory and memory without any CPU action. 
+
+• This keeps CPU resources free for other operations.
+
+#### DMA Transfer Modes: Peripheral-Memory
+
+•When this mode is enabled (by setting the bit EN in the DMA_SxCR register), each time a peripheral request 
+
+occurs, the stream initiates a transfer from the source to fill the FIFO.
+
+> In FIFO mode, when the threshold level of the FIFO is reached, the contents of the FIFO are drained and stored into the 
+
+destination.
+
+> In Direct mode, the DMA preloads the first data to transfer into an internal FIFO, and transfer to the destination as soon as the peripheral requests a data transfer.
+
+• The transfer stops once the DMA_SxNDTR register reaches zero, when the peripheral requests the end of transfers (in case of a peripheral flow controller) or when the EN bit in the DMA_SxCR register is cleared by software.
+
+#### DMA Transfer Modes: Memory-Memory
+
+• In memory-to-memory mode, DMA channels work without being triggered by a request from a peripheral. 
+
+• When the stream is enabled by setting the Enable bit (EN) in the DMA_SxCR register, the stream immediately starts to fill the FIFO up to the threshold level. When the threshold level is reached, the FIFO contents are drained and stored into the destination.
+
+• The transfer stops once the DMA_SxNDTR register reaches zero or when the EN bit in the DMA_SxCR register is cleared by software.
+
+#### DMA Request
+
+• When does the next DMA transfer start?
+
+• When the peripheral is ready to send or receive data, the peripheral will generate a DMA request signal to the DMA controller to request a data transfer.
+
+---
+
+# week3
+
+## 1.Serial Communications
+
+### a.Serial Data Transmission
+
+#### Synchronous
+
+• Use shift registers and a clock signal to convert between serial and parallel formats
+
+• Synchronous: an explicit clock signal is along with the data signal
+
+##### Synchronous: Full-Duplex vs Half-Duplex
+
+Full-duplex communication uses two serial data lines which allows simultaneous send and receive 
+
+![image-20250605130640473](微控制器复习笔记.assets/image-20250605130640473.png)
+
+Half-duplex communication: share serial data line which doesn’t allow simultaneous send and receive.
+
+![image-20250605130647827](微控制器复习笔记.assets/image-20250605130647827.png)
+
+#### Asynchronous
+
+• Eliminate the clock line!
+
+• Transmitter and receiver must generate clock locally
+
+• Transmitter must add start bit (always same value) to indicate start of each data frame
+
+• Receiver detects leading edge of start bit, then uses it as a timing reference for sampling data line to extract each data bit N at time Tbit*(N+1.5)
+
+• Stop bit is also used to detect some timing errors
+
+![image-20250605130525801](微控制器复习笔记.assets/image-20250605130525801.png)
+
+## 2.USART (Universal Synchronous Asynchronous Receiver Transmitter)
+
+> 通用同步异步收发器
+
+### a.Overview of USART
+
+• USART is a hardware communication protocol for data exchange and system control that support both synchronous and asynchronous modes.
+
+![image-20250605132412833](微控制器复习笔记.assets/image-20250605132412833.png)
+
+### b.USART Data Packet
+
+• Typical UART data packet is 8 bits (or 9 bits), no parity bit (N) and 1 stop bit (8N1). 
+
+• Parity bit can be inserted as an additional bit either Odd or Even (8O1 or 8E1).
+
+• The TX pin is low during the start bit and high during the stop bit.
+
+• An Idle character consists of all "1"s for a frame period, followed by a start bit. 
+
+• A Break character occurs when "0"s are received for a frame period, after which the transmitter inserts stop bit(s).
+
+![image-20250605132724214](微控制器复习笔记.assets/image-20250605132724214.png)
+
+#### Configurable stop bits
+
+•1 stop bit: This is the default value of number of stop bits.
+
+• 2 Stop bits: This will be supported by normal USART, single-wire and modem modes.
+
+• 0.5 stop bit: To be used when receiving data in Smartcard mode.
+
+• 1.5 stop bits: To be used when transmitting and receiving data in Smartcard mode.
+
+### c.USART Transmitter: Data transmission Steps
+
+---
+
+• Enable the USART by writing the UE bit in USART_CR1 register to 1.
+
+• Program the M bit in USART_CR1 to define the word length (8 or 9 bits).
+
+• Program the number of stop bits in USART_CR2.
+
+• Select DMA to enable (DMAT) in USART_CR3 if Multi buffer Communication is to take place. Configure the DMA register as explained in multi-buffer communication.
+
+• Select the desired baud rate using the USART_BRR register.
+
+• Set the TE bit in USART_CR1 to send an idle frame as the first transmission.
+
+• Write the data to send in the USART_DR register (this clears the TXE bit). Repeat this for each data to be transmitted in case of a single buffer.
+
+• After writing the last data into the USART_DR register, wait until TC=1. This indicates that the transmission of the last frame is complete. This is required for instance when the USART is disabled or enters the Halt mode to avoid corrupting the last transmission.
+
+---
+
+USART Transmitter: TC/TXE behaviour
+
+TXE = Transmission data register (1: data is transferred)
+
+TC = Transmission Complete (1: transmission is complete)
+
+![image-20250605134056109](微控制器复习笔记.assets/image-20250605134056109.png)
+
+### d.USART Receiver
+
+#### USART Receiver: Oversampling of bit
+
+• UART receivers by default use 16x oversampling (or 8x oversampling) for each individual bit to improve bit detection accuracy and to mitigate noise.
+
+![image-20250605134305236](微控制器复习笔记.assets/image-20250605134305236.png)
+
+#### USART Receiver: Start bit detection
+
+• The start bit is detected when a specific sequence of samples is recognised: 
+
+1 1 1 0 X 0 X 0 X 0 0 0 0
+
+• This sequence is the same for 16x or 8x oversampling
+
+![image-20250605134513585](微控制器复习笔记.assets/image-20250605134513585.png)
+
+![image-20250605134525113](微控制器复习笔记.assets/image-20250605134525113.png)
+
+#### USART Receiver: Data reception steps
+
+• Enable the USART by writing the UE bit in the USART_CR1 register to 1.
+
+• Program the M bit in USART_CR1 to define the word length.
+
+• Program the number of stop bits in USART_CR2.
+
+• Select DMA enable (DMAR) in USART_CR3 if multi-buffer communication is to take place. Configure the DMA register as explained in multi-buffer communication. STEP 3
+
+• Select the desired baud rate using the baud rate register USART_BRR.
+
+• Set the RE bit USART_CR1. This enables the receiver which begins searching for a start bit
+
+### e.USART Baud Rate
+
+• Baud rate is the number of bits physically transferred per second
+
+• Example:
+
+> Baud rate is 115200 bps 
+> Each frame: 1 start bit, 8 data bits, 1 stop bit, and no parity bit. 
+> Transmission rate of actual data 
+>
+> > 115200 / 8 = 14400 bps
+> > 115200 / (1 + 8 + 1) = 11520 bps
+> > Note: start and stop bits are the protocol overhead
+
+---
+
+• The baud rate for the receiver and transmitter (Rx and Tx) are both set to the same value as programmed in the Mantissa and Fraction values of USARTDIV.
+
+![image-20250605135407059](微控制器复习笔记.assets/image-20250605135407059.png)
+
+Where: 
+
+• f PCLK is the APB1 peripheral block frequency (42 MHz)
+
+• OVERB=0 oversampling by 8
+
+• OVERB=1 oversampling by 16
+
+• USARTDIV is an unsigned fixed-point number that is coded on the USART_BRR register.
+
+> If OVER8 is 0, then the signal is oversampled by 16, and 4 bits are used for the fractional part. 
+>
+> If OVER8 is 1, then the signal is oversampled by 8, and 3 bits are used.
+
+• Example:
+
+> If USART_BRR is 0x1BC and OVER8 is 0, then 0x16 is the integer part and 0xD is the fractional part. 
+>
+> 𝑈𝑆𝐴𝑅𝑇𝐷𝑉= 0x16 + 0xD / 0x10 = 22 + 13/16 = 22.81
+
+ Let’s assume we are configuring USART2:
+
+> APB1 peripheral clock f𝑃𝐶𝐿𝐾 = 42 MHz
+> Desired baud rate = 115,200 bps
+> Oversampled by 16, 𝑂𝑉𝐸𝑅8 = 0
+>  • Step 1: We need to determine the value to bewritten into USART_BRR register is: 
+
+ ![image-20250605140317078](微控制器复习笔记.assets/image-20250605140317078.png)
+
+ Therefore, the USART_BRR register value is:
+
+> DIV_Mantissa: 22 (0x16)
+> DIV_Fraction: 0.786 (0.786 x 16 = 12.576 = 13 → 0xD) 
+> Finally, USART_BRR = 0x16D
+
+• Step 2: We need to validate the Actual baud rate:
+
+![image-20250605140507595](微控制器复习笔记.assets/image-20250605140507595.png)
+
+### d.Transmission using DMA
+
+• DMA mode can be enabled for transmission by setting DMAT bit in the USART_CR3 register. 
+
+• Data is loaded from a SRAM area configured using the DMA peripheral (refer to the DMA specification) to the USART_DR register whenever the TXE bit is set. 
+
+• To map a DMA channel for USART transmission, use the following procedure (x denotes the channel number)
+
+### e.Receiver using DMA
+
+• DMA mode can be enabled for reception by setting the DMAR bit in USART_CR3 register.
+
+• Data is loaded from the USART_DR register to a SRAM area configured using the DMA peripheral (refer to the DMA specification) whenever a data byte is received. 
+
+• To map a DMA channel for USART reception, use the following procedure
+
+---
+
+## 3.I2C (Inter-Integrated Circuit)
+
+### a.Bus solution: I2C
+
+• I2C interface & protocol: make sure messages can be sent from a device to another selected target
+
+![image-20250605141357711](微控制器复习笔记.assets/image-20250605141357711.png)
+
+• Inter-Integrated Circuit (I2C) bus is a two-wire serial interface originally developed by the Philips Semiconductors (now NXP) back in 1982 for use in consumer products.
+
+• The I2C is a single-master (or multi-master), multi-slaves, synchronous, half-duplex serial communication protocol. 
+
+• It’s widely used for attaching lower-speed peripheral ICs to processors and microcontrollers in short-distance, intra-board communication.
+
+![image-20250605141607302](微控制器复习笔记.assets/image-20250605141607302.png)
+
+I2C Master (Active role)
+
+>Initializes a transfer
+>Generates clock signals
+>Send / ask for data
+>Terminates a transfer
+
+I2C Slave (Passive role)
+
+>Keep listening to the bus
+>Wait to be addressed by the master
+>Receive / send data
+
+### b.I2C: Wires
+
+![image-20250605141755406](微控制器复习笔记.assets/image-20250605141755406.png)
+
+### c.I2C: Transfer Format
+
+![image-20250605142157301](微控制器复习笔记.assets/image-20250605142157301.png)
+
+### e.I2C: Working Modes
+
+• Master-sender
+
+> Master issues START and ADDRESS, and then transmits data to the addressed slave device
+
+• Master-receiver
+
+> Master issues START and ADDRESS, and receives data from the addressed slave device
+
+• Slave-sender
+
+> Master issues START and the ADDRESS of the slave, and then the slave sends data to the master
+
+• Slave-receiver
+
+> Master issues START and the ADDRESS of the slave, and then the slave receives data from the master.
+
+### f.I2C: Master Write Operation
+
+• Master sends START condition.
+
+• Sends address (0x34) + Write bit.
+
+• Slave responds with ACK.
+
+• Master sends command byte (register address).
+
+• Master transmits data byte(s). 
+
+• Slave response with ACK at 9th clock pulse follows the 8 clock cycles of a byte transfer by Master.
+
+• STOP condition is sent.
+
+![image-20250605142638270](微控制器复习笔记.assets/image-20250605142638270.png)
+
+### G.I2C: Master Read Operation
+
+• Master sends START condition.
+
+• Sends address (0x34) + Read bit.
+
+• Slave responds with ACK.
+
+• Slave transmits data byte(s).
+
+• Master sends NACK after the last byte.
+
+• Master sends STOP condition.
+
+![image-20250605142756507](微控制器复习笔记.assets/image-20250605142756507.png)
+
+• START and STOP must be generated by the master.
+
+• Data bit is valid only when SCL is '1'.
+
+• SCL is also generated by the master.
+
+• The clock frequency determines the data transfer rate.
+
+### H.I2C: Acknowledgement (ACK)
+
+• ACK (LOW) takes place after every byte is sent when transmitter releases the SDA line so the receiver can pull the SDA line LOW.
+
+• It signals to the master/transmitter that the byte was successfully received.
+
+• If SDA remain HIGH, it is a Not acknowledge signal (NACK). Possible scenarios:
+
+• No receiver on the bus
+
+• The receiver is unable to receive or transmit (not ready)
+
+• During the transfer, the receiver does not understand the data / cannot receive any more data bytes.
+
+• A master-receiver uses NACK to signal the end of the transfer to the slave-transmitter (then generates a STOP).
+
+![image-20250605143049399](微控制器复习笔记.assets/image-20250605143049399.png)
+
+---
+
+Recap - Features of I2C
+
+• All devices attached to the same bus, taking roles of either master or slave.
+
+• A serial, 8-bit oriented, bi-directional (read/write) data transfer protocol is defined.
+
+• Each device is assigned a 7-bit unique address.
+
+• There are only two bus lines - SDA & SCL.
+
+## 4.SPI (Serial Peripheral Interface)
+
+![image-20250605144952721](微控制器复习笔记.assets/image-20250605144952721.png)
+
+### a.Fundamental of SPI in STM32F401
+
+• Four I/O pins are dedicated to SPI communication with external devices.
+
+• MISO: Master In / Slave Out data. In the general case, this pin is used to transmit data in slave mode and receive data in master mode.
+
+• MOSI: Master Out / Slave In data. In the general case, this pin is used to transmit data in master mode and receive data in slave mode.
+
+• SCK: Serial Clock output pin for SPI masters and input pin for SPI slaves.
+
+• NSS: Slave select pin. Depending on the SPI and NSS settings, this pin can be used to either:
+
+> select an individual slave device for communication
+> synchronize the data frame or
+> detect a conflict between multiple masters
+
+![image-20250605145442467](微控制器复习笔记.assets/image-20250605145442467.png)
+
+• The SPI can communicate in simplex mode by setting the SPI in transmit-only or in receive-only using the RXONLY bit in the SPIx_CR2 register. 
+
+> Transmit-only mode (RXONLY=0)
+>
+> Receive-only mode (RXONLY=1)
+
+• In this configuration, only one line isused for the transfer between the shift registers of the master and slave. 
+
+• The remaining MISO and MOSI pins pair is not used for communication and can be used as standard GPIOs.
+
+![image-20250605145624988](微控制器复习笔记.assets/image-20250605145624988.png)
+
+• In a configuration with two or more 
+
+independent slaves, the master uses GPIO 
+
+pins to manage the chip select lines for each 
+
+slave.
+
+• The master must select one of the slaves 
+
+individually by pulling low the GPIO connected 
+
+to the slave NSS input. 
+
+• When this is done, a standard master and 
+
+dedicated slave communication is established.
+
+### b.Standard multi-slave communication
+
+• In a configuration with two or more independent slaves, the master uses GPIO pins to manage the chip select lines for each slave.
+
+• The master must select one of the slaves individually by pulling low the GPIO connected to the slave NSS input. 
+
+• When this is done, a standard master and dedicated slave communication is established.
+
+![image-20250605145810876](微控制器复习笔记.assets/image-20250605145810876.png)
+
+### c.Data Frame Format
+
+• The SPI shift register can be set up to shift out MSB-first or LSB-first, depending on the value of the LSBFIRST bit. 
+
+• Each data frame is 8 or 16 bit long depending on the size of the data programmed using the DFF bit in the SPI_CR1 register. 
+
+• The selected data frame format is applicable both for transmission and reception.
+
