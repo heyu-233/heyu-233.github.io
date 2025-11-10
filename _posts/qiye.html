@@ -1,0 +1,767 @@
+---
+layout:    post
+title:     "企业战略"
+author:    "maomaoWang"
+header-style: text
+catalog:  true
+tags:
+    - 商业分析
+    - 企业战略
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鸿蒙系统四大核心优势</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0078D7',
+                        secondary: '#00C6FF',
+                        accent: '#FF4757',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #0078D7 0%, #00C6FF 100%);
+            }
+            .gradient-text {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(135deg, #0078D7 0%, #00C6FF 100%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md fixed w-full z-10">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center">
+                    <i class="fa fa-cubes text-white"></i>
+                </div>
+                <span class="text-xl font-bold text-dark">鸿蒙系统优势分析</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#distributed" class="text-gray-600 hover:text-primary transition-colors">分布式架构</a>
+                <a href="#security" class="text-gray-600 hover:text-primary transition-colors">安全性革新</a>
+                <a href="#development" class="text-gray-600 hover:text-primary transition-colors">开发效率</a>
+                <a href="#performance" class="text-gray-600 hover:text-primary transition-colors">性能优化</a>
+            </div>
+            <button class="md:hidden text-gray-600 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <header class="pt-24 pb-16 px-4 md:pt-32 md:pb-24 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text animate-fade-in">鸿蒙系统四大核心优势</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto animate-slide-up">
+                基于最新数据的可视化分析，展示鸿蒙系统在分布式架构、安全性、开发效率和性能优化方面的卓越表现
+            </p>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 分布式架构与全场景协同 -->
+        <section id="distributed" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <i class="fa fa-sitemap text-primary"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-dark">分布式架构与全场景协同</h2>
+                    </div>
+                    <p class="text-gray-600 mb-8">
+                        鸿蒙的分布式技术通过"软总线"实现多设备硬件能力共享，形成"超级虚拟终端"。截至2025年，鸿蒙已覆盖18类设备，支持手机、车机、智能家居等跨设备任务调度，设备间通信延迟低于50ms。
+                    </p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- 饼图：设备覆盖类型 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">设备覆盖类型分布</h3>
+                            <div class="h-80">
+                                <canvas id="deviceCoverageChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 条形图：跨平台协同能力对比 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">跨平台协同能力对比</h3>
+                            <div class="h-80">
+                                <canvas id="crossPlatformChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 微内核与安全性革新 -->
+        <section id="security" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                            <i class="fa fa-shield text-accent"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-dark">微内核与安全性革新</h2>
+                    </div>
+                    <p class="text-gray-600 mb-8">
+                        鸿蒙采用微内核设计，代码量仅数万行（Linux内核超千万行），通过CC EAL5+安全认证。HarmonyOS 6引入"星盾安全架构"，累计拦截240亿次违规权限申请，支持AI防窥和端到端加密分享。
+                    </p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- 条形图：内核代码量对比 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">内核代码量对比 (行数)</h3>
+                            <div class="h-80">
+                                <canvas id="kernelCodeChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 条形图：安全防护能力 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">安全防护能力对比</h3>
+                            <div class="h-80">
+                                <canvas id="securityProtectionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 跨平台开发与低代码效率 -->
+        <section id="development" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                            <i class="fa fa-code text-green-600"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-dark">跨平台开发与低代码效率</h2>
+                    </div>
+                    <p class="text-gray-600 mb-8">
+                        鸿蒙的ArkTS语言支持"一次开发，多端部署"，开发者可通过声明式UI和响应式布局快速适配不同设备。2025年原生应用数量突破5.3万，覆盖99%日常使用时长。
+                    </p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- 雷达图：开发效率对比 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">跨平台开发效率对比</h3>
+                            <div class="h-80">
+                                <canvas id="developmentEfficiencyChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 条形图：原生应用数量对比 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">原生应用数量对比 (万)</h3>
+                            <div class="h-80">
+                                <canvas id="nativeAppsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 实时性与性能优化 -->
+        <section id="performance" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                            <i class="fa fa-tachometer text-yellow-600"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-dark">实时性与性能优化</h2>
+                    </div>
+                    <p class="text-gray-600 mb-8">
+                        确定时延引擎确保高优先级任务响应时间低于10微秒。方舟编译器和EROFS文件系统提升应用启动速度，安卓应用在鸿蒙上重新编译后性能可提升60%。
+                    </p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- 条形图：性能提升对比 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">应用性能提升对比</h3>
+                            <div class="h-80">
+                                <canvas id="performanceImprovementChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 折线图：长期使用流畅度对比 -->
+                        <div class="bg-gray-50 rounded-lg p-4 card-hover">
+                            <h3 class="text-lg font-semibold text-center mb-4 text-gray-700">长期使用流畅度对比</h3>
+                            <div class="h-80">
+                                <canvas id="smoothnessOverTimeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部区域 -->
+    <footer class="bg-dark text-white py-8 px-4">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center">
+                            <i class="fa fa-cubes text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold">鸿蒙系统优势分析</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">基于2025年最新数据的可视化分析</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-linkedin text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400">
+                <p>&copy; 2025 鸿蒙系统优势分析. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置Chart.js全局配置
+            Chart.defaults.font.family = "'Inter', 'system-ui', 'sans-serif'";
+            Chart.defaults.color = '#64748b';
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = false;
+            
+            // 设备覆盖类型分布 - 饼图
+            const deviceCoverageCtx = document.getElementById('deviceCoverageChart').getContext('2d');
+            const deviceCoverageChart = new Chart(deviceCoverageCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['手机', '平板', 'PC', '车机', '智能家居', '其他设备'],
+                    datasets: [{
+                        data: [35, 15, 10, 20, 15, 5],
+                        backgroundColor: [
+                            '#0078D7', '#00C6FF', '#00E676', '#FFD600', '#FF6D00', '#FF4757'
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                boxWidth: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
+                    }
+                }
+            });
+            
+            // 跨平台协同能力对比 - 条形图
+            const crossPlatformCtx = document.getElementById('crossPlatformChart').getContext('2d');
+            const crossPlatformChart = new Chart(crossPlatformCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['设备覆盖种类', '通信延迟(ms)', '协同流畅度', '生态开放性'],
+                    datasets: [
+                        {
+                            label: '鸿蒙OS',
+                            data: [18, 50, 95, 85],
+                            backgroundColor: '#0078D7',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '安卓',
+                            data: [12, 150, 70, 95],
+                            backgroundColor: '#3DDC84',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'iOS',
+                            data: [5, 80, 90, 40],
+                            backgroundColor: '#FF3B30',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+            
+            // 内核代码量对比 - 条形图
+            const kernelCodeCtx = document.getElementById('kernelCodeChart').getContext('2d');
+            const kernelCodeChart = new Chart(kernelCodeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['鸿蒙微内核', 'Linux内核'],
+                    datasets: [{
+                        label: '代码量 (万行)',
+                        data: [5, 1500],
+                        backgroundColor: [
+                            '#0078D7',
+                            '#64748b'
+                        ],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '万';
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `代码量: ${context.raw}万行`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 安全防护能力对比 - 条形图
+            const securityProtectionCtx = document.getElementById('securityProtectionChart').getContext('2d');
+            const securityProtectionChart = new Chart(securityProtectionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['安全认证等级', '违规拦截能力(亿次)', 'AI防窥', '端到端加密'],
+                    datasets: [
+                        {
+                            label: '鸿蒙OS',
+                            data: [95, 240, 90, 95],
+                            backgroundColor: '#0078D7',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '安卓',
+                            data: [70, 120, 40, 60],
+                            backgroundColor: '#3DDC84',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'iOS',
+                            data: [90, 180, 60, 85],
+                            backgroundColor: '#FF3B30',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+            
+            // 跨平台开发效率对比 - 雷达图
+            const developmentEfficiencyCtx = document.getElementById('developmentEfficiencyChart').getContext('2d');
+            const developmentEfficiencyChart = new Chart(developmentEfficiencyCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['一次开发', '多端部署', 'UI适配', '性能优化', '生态支持'],
+                    datasets: [
+                        {
+                            label: '鸿蒙OS',
+                            data: [95, 90, 85, 80, 95],
+                            backgroundColor: 'rgba(0, 120, 215, 0.2)',
+                            borderColor: '#0078D7',
+                            pointBackgroundColor: '#0078D7',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#0078D7'
+                        },
+                        {
+                            label: '安卓',
+                            data: [40, 50, 45, 70, 85],
+                            backgroundColor: 'rgba(61, 220, 132, 0.2)',
+                            borderColor: '#3DDC84',
+                            pointBackgroundColor: '#3DDC84',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#3DDC84'
+                        },
+                        {
+                            label: 'iOS',
+                            data: [30, 35, 60, 80, 75],
+                            backgroundColor: 'rgba(255, 59, 48, 0.2)',
+                            borderColor: '#FF3B30',
+                            pointBackgroundColor: '#FF3B30',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#FF3B30'
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: {
+                                stepSize: 20,
+                                backdropColor: 'transparent'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+            
+            // 原生应用数量对比 - 条形图
+            const nativeAppsCtx = document.getElementById('nativeAppsChart').getContext('2d');
+            const nativeAppsChart = new Chart(nativeAppsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2023', '2024', '2025'],
+                    datasets: [
+                        {
+                            label: '鸿蒙OS',
+                            data: [1.2, 3.5, 5.3],
+                            backgroundColor: '#0078D7',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '安卓',
+                            data: [280, 290, 300],
+                            backgroundColor: '#3DDC84',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'iOS',
+                            data: [200, 210, 220],
+                            backgroundColor: '#FF3B30',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '万';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}万`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 应用性能提升对比 - 条形图
+            const performanceImprovementCtx = document.getElementById('performanceImprovementChart').getContext('2d');
+            const performanceImprovementChart = new Chart(performanceImprovementCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['应用启动速度', '响应时间', '图形渲染', '多任务处理'],
+                    datasets: [
+                        {
+                            label: '安卓应用',
+                            data: [100, 100, 100, 100],
+                            backgroundColor: '#3DDC84',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '鸿蒙重编译后',
+                            data: [160, 150, 140, 130],
+                            backgroundColor: '#0078D7',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 长期使用流畅度对比 - 折线图
+            const smoothnessOverTimeCtx = document.getElementById('smoothnessOverTimeChart').getContext('2d');
+            const smoothnessOverTimeChart = new Chart(smoothnessOverTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: ['初始', '3个月', '6个月', '12个月', '18个月', '24个月'],
+                    datasets: [
+                        {
+                            label: '鸿蒙OS',
+                            data: [100, 98, 95, 92, 88, 85],
+                            borderColor: '#0078D7',
+                            backgroundColor: 'rgba(0, 120, 215, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: '安卓',
+                            data: [100, 95, 88, 80, 70, 60],
+                            borderColor: '#3DDC84',
+                            backgroundColor: 'rgba(61, 220, 132, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'iOS',
+                            data: [100, 99, 97, 94, 90, 86],
+                            borderColor: '#FF3B30',
+                            backgroundColor: 'rgba(255, 59, 48, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 50,
+                            max: 100,
+                            grid: {
+                                drawBorder: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 添加滚动动画
+            const animateOnScroll = function() {
+                const cards = document.querySelectorAll('.card-hover');
+                
+                cards.forEach(card => {
+                    const cardPosition = card.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    
+                    if (cardPosition < windowHeight * 0.85) {
+                        card.classList.add('animate-fade-in');
+                    }
+                });
+            };
+            
+            // 初始检查
+            animateOnScroll();
+            
+            // 滚动时检查
+            window.addEventListener('scroll', animateOnScroll);
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
